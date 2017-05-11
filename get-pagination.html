@@ -49,15 +49,15 @@
 
     <nav aria-label="Page navigation">
       <ul class="pagination">
-        <li class$="[[computeLeftArrowClass(currentPage)]]" on-tap="handlePreviousPage" tabindex="0">
+        <li class$="[[_computeLeftArrowClass(currentPage)]]" on-tap="_handlePreviousPage" tabindex="0">
           <span>
             <span aria-hidden="true">&laquo;</span>
           </span>
         </li>
         <template is="dom-repeat" items="[[pages]]" as="page">
-          <li on-tap="handlePageNumberClicked" class$="[[computeActiveClass(page, currentPage)]]" tabindex="0"><a href="#" data-id$="[[page]]">[[page]]</a></li>
+          <li on-tap="_handlePageNumberClicked" class$="[[_computeActiveClass(page, currentPage)]]" tabindex="0"><a href="#" data-id$="[[page]]">[[page]]</a></li>
         </template>
-        <li class$="[[computeRightArrowClass(currentPage)]]" on-tap="handleNextPage" tabindex="0">
+        <li class$="[[_computeRightArrowClass(currentPage)]]" on-tap="_handleNextPage" tabindex="0">
           <span>
             <span aria-hidden="true">&raquo;</span>
           </span>
@@ -75,7 +75,7 @@
 
         currentPage: {
           type: Number,
-          observer: 'computePages',
+          observer: '_computePages',
         },
         pageSize: {
           type: Number,
@@ -86,7 +86,7 @@
         totalPages: {
           type: Number,
         },
-        _pages: {
+        pages: {
           type: Array,
           value: [],
         },
@@ -95,7 +95,7 @@
         var currentPage = this.currentPage;
         var totalPages = this.totalPages;
         var pagesArray = [];
-        var range = this.computeArrayRange(currentPage, totalPages);
+        var range = this._computeArrayRange(currentPage, totalPages);
 
         for (i = range.lowVal; i <= range.highVal; i++) {
           pagesArray.push(i);

@@ -10,6 +10,7 @@
 
     <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
     <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="./demo-table.html">
     <link rel="import" href="../get-pagination.html">
 
     <style is="custom-style" include="demo-pages-shared-styles">
@@ -20,11 +21,13 @@
       <h3>Basic get-pagination demo</h3>
       <demo-snippet>
         <template>
-          <get-pagination
-            current-page=1
-            page-size=10
-            total-count=75
-            total-pages=8></get-pagination>
+          <demo-table>
+            <get-pagination
+              current-page=1
+              page-size=3
+              total-count=15
+              total-pages=5></get-pagination>
+          </demo-table>
         </template>
       </demo-snippet>
     </div>

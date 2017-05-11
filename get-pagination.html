@@ -1,20 +1,66 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="./bootstrap.html">
 
 <!--
-`get-pagination`
-A bootstrap-like pagination component
+  `get-pagination`
 
-@demo demo/index.html 
+  A bootstrap-like pagination component
+
+    ### Usage
+
+    This component requires 4 properties, and 1 event listener, to work:
+
+    ```html
+    <em-pagination
+      on-paginator-select-page="handlePaginatorSelectPage"
+      current-page="[[currentPage]]"
+      page-size="[[pageSize]]"
+      total-count="[[totalCount]]"
+      total-pages="[[totalPages]]"></em-pagination>
+    ```
+
+    `current-page`: passes the current page of the list of records
+    `page-size`: number of records listed per page
+    `total-count`: total number of records
+    `total-pages`: the total number of pages for the records list
+
+    <em-pagination> fires an event when a page number is clicked on the pagination component. The event notifies the parent component which page number was clicked. You will also need to implement an event handler in the parent component that listens for the event fired by <em-pagination>. The parent component will then use that page number to fetch the corresponding page data. An example is shown below:
+
+    ```js
+    handlePaginatorSelectPage: function(e, currentPage) {
+      e.preventDefault();
+      this.handleFetchPageData(currentPage)
+    },
+    ```
+
+  @demo demo/index.html
 -->
 
 <dom-module id="get-pagination">
   <template>
-    <style>
+    <style include="bootstrap">
       :host {
         display: block;
       }
     </style>
-    <h2>Hello [[prop1]]</h2>
+
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+        <li class$="[[computeLeftArrowClass(currentPage)]]" on-tap="handlePreviousPage" tabindex="0">
+          <span>
+            <span aria-hidden="true">&laquo;</span>
+          </span>
+        </li>
+        <template is="dom-repeat" items="[[pages]]" as="page">
+          <li on-tap="handlePageNumberClicked" class$="[[computeActiveClass(page, currentPage)]]" tabindex="0"><a href="#" data-id$="[[page]]">[[page]]</a></li>
+        </template>
+        <li class$="[[computeRightArrowClass(currentPage)]]" on-tap="handleNextPage" tabindex="0">
+          <span>
+            <span aria-hidden="true">&raquo;</span>
+          </span>
+        </li>
+      </ul>
+    </nav>
   </template>
 
   <script>
@@ -23,12 +69,124 @@ A bootstrap-like pagination component
       is: 'get-pagination',
 
       properties: {
-        prop1: {
-          type: String,
-          value: 'get-pagination',
+
+        currentPage: {
+          type: Number,
+          observer: 'computePages',
+        },
+        pageSize: {
+          type: Number,
+        },
+        totalCount: {
+          type: Number,
+        },
+        totalPages: {
+          type: Number,
+        },
+        pages: {
+          type: Array,
+          value: [],
         },
       },
+      computePages: function () {
+        var currentPage = this.currentPage;
+        var totalPages = this.totalPages;
+        var pagesArray = [];
+        var range = this.computeArrayRange(currentPage, totalPages);
 
+        for (i = range.lowVal; i <= range.highVal; i++) {
+          pagesArray.push(i);
+        }
+
+        this.set('pages', pagesArray);
+      },
+      computeArrayRange: function(currentPage, totalPages) {
+        var lowVal, highVal;
+
+        if (totalPages < 5) return { lowVal: 1, highVal: totalPages };
+
+        if (currentPage < 3) {
+          lowVal = 1;
+          highVal = 5;
+        }
+        if (currentPage >= 3 && currentPage <= totalPages - 2) {
+          lowVal = currentPage - 2;
+          highVal = currentPage + 2;
+        }
+        if (currentPage > totalPages - 2) {
+          lowVal = totalPages - 4;
+          highVal = totalPages;
+        }
+
+        return { lowVal: lowVal, highVal: highVal };
+      },
+      handlePageNumberClicked: function (e) {
+        e.preventDefault();
+        var pageNumberClicked = e.target.attributes['data-id'].value;
+        var pageNumber = parseInt(pageNumberClicked, 10);
+
+        if (pageNumber !== this.currentPage) {
+          this.set('currentPage', pageNumber);
+          this.fire('paginator-select-page', this.currentPage);
+        }
+      },
+      handleNextPage: function () {
+        if (this.currentPage < this.totalPages) {
+          this.set('currentPage', this.currentPage + 1);
+          this.fire('paginator-select-page', this.currentPage);
+        }
+      },
+      handlePreviousPage: function () {
+        if (this.currentPage > 1) {
+          this.set('currentPage', this.currentPage - 1);
+          this.fire('paginator-select-page', this.currentPage);
+        }
+      },
+      computeActiveClass: function(page, currentPage) {
+        if (page === currentPage) {
+          return "active";
+        }
+      },
+      computeLeftArrowClass: function(currentPage) {
+        var classList = "previous ";
+        if (currentPage === 1) {
+          classList += "disabled";
+        }
+        return classList;
+      },
+      computeRightArrowClass: function(currentPage) {
+        var classList = "next ";
+        if (currentPage === this.totalPages) {
+          classList += "disabled";
+        }
+        return classList;
+      },
     });
   </script>
 </dom-module>
+
+
+
+<!--
+    <div class="pagination-wrapper">
+      <span><span class="sr-only">Showing</span> [[firstRecord]] - [[lastRecord]] of [[totalCount]] Results</span>
+      <ul class="pagination">
+        <li class$="[[computeLeftArrowClass(currentPage)]]">
+          <a href="#" on-tap="handlePreviousPage">
+            <iron-icon tabindex="0" icon="em-font-awesome:fa-chevron-left"></iron-icon>
+          </a>
+        </li>
+        <template is="dom-repeat" items="[[pages]]" as="page">
+          <li data-item="[[page]]" on-tap="handlePageNumberClicked" class$="[[computeActiveClass(page, currentPage)]]">
+            <a data-id$="[[page]]" tabindex="0" id$="pagenum-[[page]]">[[page]]</a>
+          </li>
+        </template>
+        <li class$="[[computeRightArrowClass(currentPage)]]">
+          <a href="#" on-tap="handleNextPage">
+            <iron-icon tabindex="0" icon="em-font-awesome:fa-chevron-right"></iron-icon>
+          </a>
+        </li>
+      </ul>
+      <span> [[currentPage]] of [[totalPages]] </span>
+    </div>
+-->

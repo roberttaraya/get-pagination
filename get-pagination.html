@@ -2,7 +2,7 @@
 <link rel="import" href="./bootstrap.html">
 
 <!--
-  `get-pagination`
+  `<get-pagination>`
 
   A bootstrap-like pagination component
 
@@ -12,21 +12,24 @@
 
     ```html
     <em-pagination
-      on-paginator-select-page="handlePaginatorSelectPage"
       current-page="[[currentPage]]"
       page-size="[[pageSize]]"
       total-count="[[totalCount]]"
       total-pages="[[totalPages]]"></em-pagination>
     ```
 
-    `current-page`: passes the current page of the list of records
-    `page-size`: number of records listed per page
-    `total-count`: total number of records
-    `total-pages`: the total number of pages for the records list
+    `current-page`: current page of the list of pages of records<br/>
+    `page-size`: number of records listed per page<br/>
+    `total-count`: total number of records<br/>
+    `total-pages`: the total number of pages of records<br/>
 
-    <em-pagination> fires an event when a page number is clicked on the pagination component. The event notifies the parent component which page number was clicked. You will also need to implement an event handler in the parent component that listens for the event fired by <em-pagination>. The parent component will then use that page number to fetch the corresponding page data. An example is shown below:
+    `<em-pagination>` fires an event when a page number is clicked on the pagination component. The event notifies the parent component which page number was clicked. You will also need to implement an event handler in the parent component that listens for the event fired by `<em-pagination>`. The parent component will then use that page number to fetch the corresponding page data. An example is shown below:
 
     ```js
+    listeners: {
+       'paginator-select-page': "handlePaginatorSelectPage",
+    },
+
     handlePaginatorSelectPage: function(e, currentPage) {
       e.preventDefault();
       this.handleFetchPageData(currentPage)
@@ -83,12 +86,12 @@
         totalPages: {
           type: Number,
         },
-        pages: {
+        _pages: {
           type: Array,
           value: [],
         },
       },
-      computePages: function () {
+      _computePages: function () {
         var currentPage = this.currentPage;
         var totalPages = this.totalPages;
         var pagesArray = [];
@@ -100,7 +103,7 @@
 
         this.set('pages', pagesArray);
       },
-      computeArrayRange: function(currentPage, totalPages) {
+      _computeArrayRange: function(currentPage, totalPages) {
         var lowVal, highVal;
 
         if (totalPages < 5) return { lowVal: 1, highVal: totalPages };
@@ -120,7 +123,7 @@
 
         return { lowVal: lowVal, highVal: highVal };
       },
-      handlePageNumberClicked: function (e) {
+      _handlePageNumberClicked: function (e) {
         e.preventDefault();
         var pageNumberClicked = e.target.attributes['data-id'].value;
         var pageNumber = parseInt(pageNumberClicked, 10);
@@ -130,31 +133,31 @@
           this.fire('paginator-select-page', this.currentPage);
         }
       },
-      handleNextPage: function () {
+      _handleNextPage: function () {
         if (this.currentPage < this.totalPages) {
           this.set('currentPage', this.currentPage + 1);
           this.fire('paginator-select-page', this.currentPage);
         }
       },
-      handlePreviousPage: function () {
+      _handlePreviousPage: function () {
         if (this.currentPage > 1) {
           this.set('currentPage', this.currentPage - 1);
           this.fire('paginator-select-page', this.currentPage);
         }
       },
-      computeActiveClass: function(page, currentPage) {
+      _computeActiveClass: function(page, currentPage) {
         if (page === currentPage) {
           return "active";
         }
       },
-      computeLeftArrowClass: function(currentPage) {
+      _computeLeftArrowClass: function(currentPage) {
         var classList = "previous ";
         if (currentPage === 1) {
           classList += "disabled";
         }
         return classList;
       },
-      computeRightArrowClass: function(currentPage) {
+      _computeRightArrowClass: function(currentPage) {
         var classList = "next ";
         if (currentPage === this.totalPages) {
           classList += "disabled";
@@ -164,29 +167,3 @@
     });
   </script>
 </dom-module>
-
-
-
-<!--
-    <div class="pagination-wrapper">
-      <span><span class="sr-only">Showing</span> [[firstRecord]] - [[lastRecord]] of [[totalCount]] Results</span>
-      <ul class="pagination">
-        <li class$="[[computeLeftArrowClass(currentPage)]]">
-          <a href="#" on-tap="handlePreviousPage">
-            <iron-icon tabindex="0" icon="em-font-awesome:fa-chevron-left"></iron-icon>
-          </a>
-        </li>
-        <template is="dom-repeat" items="[[pages]]" as="page">
-          <li data-item="[[page]]" on-tap="handlePageNumberClicked" class$="[[computeActiveClass(page, currentPage)]]">
-            <a data-id$="[[page]]" tabindex="0" id$="pagenum-[[page]]">[[page]]</a>
-          </li>
-        </template>
-        <li class$="[[computeRightArrowClass(currentPage)]]">
-          <a href="#" on-tap="handleNextPage">
-            <iron-icon tabindex="0" icon="em-font-awesome:fa-chevron-right"></iron-icon>
-          </a>
-        </li>
-      </ul>
-      <span> [[currentPage]] of [[totalPages]] </span>
-    </div>
--->

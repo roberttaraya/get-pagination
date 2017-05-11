@@ -14,7 +14,7 @@
       </tr>
       <template is="dom-repeat" items="[[data]]">
         <tr>
-          <td>item-[[item]]</td>
+          <td>[[item]]</td>
         </tr>
       </template>
     </table>
@@ -54,6 +54,26 @@
               "item13",
               "item14",
               "item15",
+            ],
+            page6: [
+              "item16",
+              "item17",
+              "item18",
+            ],
+            page7: [
+              "item19",
+              "item20",
+              "item21",
+            ],
+            page8: [
+              "item22",
+              "item23",
+              "item24",
+            ],
+            page9: [
+              "item25",
+              "item26",
+              "item27",
             ]
           }
         },
@@ -62,15 +82,15 @@
         }
       },
       listeners: {
-         'paginator-select-page': "handlePaginatorSelectPage"
+        'paginator-select-page': "handlePaginatorSelectPage",
       },
       attached: function() {
         var currentPage = 1;
-        this.handleFetchPageData(currentPage)
+        this.handleFetchPageData(currentPage);
       },
       handlePaginatorSelectPage: function(e, currentPage) {
         e.preventDefault();
-        this.handleFetchPageData(currentPage)
+        this.handleFetchPageData(currentPage);
       },
       handleFetchPageData: function(currentPage) {
         var key = "page" + currentPage;

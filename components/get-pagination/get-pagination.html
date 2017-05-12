@@ -1,0 +1,169 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="./bootstrap.html">
+
+<!--
+  `<get-pagination>`
+
+  A bootstrap-like pagination component
+
+    ### Usage
+
+    This component requires 4 properties, and 1 event listener, to work:
+
+    ```html
+    <em-pagination
+      current-page="[[currentPage]]"
+      page-size="[[pageSize]]"
+      total-count="[[totalCount]]"
+      total-pages="[[totalPages]]"></em-pagination>
+    ```
+
+    `current-page`: current page of the list of pages of records<br/>
+    `page-size`: number of records listed per page<br/>
+    `total-count`: total number of records<br/>
+    `total-pages`: the total number of pages of records<br/>
+
+    `<em-pagination>` fires an event when a page number is clicked on the pagination component. The event notifies the parent component which page number was clicked. You will also need to implement an event handler in the parent component that listens for the event fired by `<em-pagination>`. The parent component will then use that page number to fetch the corresponding page data. An example is shown below:
+
+    ```js
+    listeners: {
+       'paginator-select-page': "handlePaginatorSelectPage",
+    },
+
+    handlePaginatorSelectPage: function(e, currentPage) {
+      e.preventDefault();
+      this.handleFetchPageData(currentPage)
+    },
+    ```
+
+  @demo demo/index.html
+-->
+
+<dom-module id="get-pagination">
+  <template>
+    <style include="bootstrap">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+        <li class$="[[_computeLeftArrowClass(currentPage)]]" on-tap="_handlePreviousPage" tabindex="0">
+          <span>
+            <span aria-hidden="true">&laquo;</span>
+          </span>
+        </li>
+        <template is="dom-repeat" items="[[pages]]" as="page">
+          <li on-tap="_handlePageNumberClicked" class$="[[_computeActiveClass(page, currentPage)]]" tabindex="0"><a href="#" data-id$="[[page]]">[[page]]</a></li>
+        </template>
+        <li class$="[[_computeRightArrowClass(currentPage)]]" on-tap="_handleNextPage" tabindex="0">
+          <span>
+            <span aria-hidden="true">&raquo;</span>
+          </span>
+        </li>
+      </ul>
+    </nav>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'get-pagination',
+
+      properties: {
+
+        currentPage: {
+          type: Number,
+          observer: '_computePages',
+        },
+        pageSize: {
+          type: Number,
+        },
+        totalCount: {
+          type: Number,
+        },
+        totalPages: {
+          type: Number,
+        },
+        pages: {
+          type: Array,
+          value: [],
+        },
+      },
+      _computePages: function () {
+        var currentPage = this.currentPage;
+        var totalPages = this.totalPages;
+        var pagesArray = [];
+        var range = this._computeArrayRange(currentPage, totalPages);
+
+        for (i = range.lowVal; i <= range.highVal; i++) {
+          pagesArray.push(i);
+        }
+
+        this.set('pages', pagesArray);
+      },
+      _computeArrayRange: function(currentPage, totalPages) {
+        var lowVal, highVal;
+
+        if (totalPages < 5) return { lowVal: 1, highVal: totalPages };
+
+        if (currentPage < 3) {
+          lowVal = 1;
+          highVal = 5;
+        }
+        if (currentPage >= 3 && currentPage <= totalPages - 2) {
+          lowVal = currentPage - 2;
+          highVal = currentPage + 2;
+        }
+        if (currentPage > totalPages - 2) {
+          lowVal = totalPages - 4;
+          highVal = totalPages;
+        }
+
+        return { lowVal: lowVal, highVal: highVal };
+      },
+      _handlePageNumberClicked: function (e) {
+        e.preventDefault();
+        var pageNumberClicked = e.target.attributes['data-id'].value;
+        var pageNumber = parseInt(pageNumberClicked, 10);
+
+        if (pageNumber !== this.currentPage) {
+          this.set('currentPage', pageNumber);
+          this.fire('paginator-select-page', this.currentPage);
+        }
+      },
+      _handleNextPage: function () {
+        if (this.currentPage < this.totalPages) {
+          this.set('currentPage', this.currentPage + 1);
+          this.fire('paginator-select-page', this.currentPage);
+        }
+      },
+      _handlePreviousPage: function () {
+        if (this.currentPage > 1) {
+          this.set('currentPage', this.currentPage - 1);
+          this.fire('paginator-select-page', this.currentPage);
+        }
+      },
+      _computeActiveClass: function(page, currentPage) {
+        if (page === currentPage) {
+          return "active";
+        }
+      },
+      _computeLeftArrowClass: function(currentPage) {
+        var classList = "previous ";
+        if (currentPage === 1) {
+          classList += "disabled";
+        }
+        return classList;
+      },
+      _computeRightArrowClass: function(currentPage) {
+        var classList = "next ";
+        if (currentPage === this.totalPages) {
+          classList += "disabled";
+        }
+        return classList;
+      },
+    });
+  </script>
+</dom-module>

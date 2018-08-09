@@ -17,11 +17,11 @@ $ bower install --save roberttaraya/get-pagination
 This component requires 4 properties, and 1 event listener, to work:
 
 ```html
-<em-pagination
+<get-pagination
   current-page="[[currentPage]]"
   page-size="[[pageSize]]"
   total-count="[[totalCount]]"
-  total-pages="[[totalPages]]"></em-pagination>
+  total-pages="[[totalPages]]"></get-pagination>
 ```
 
 `current-page`: current page of the list of pages of records<br/>
